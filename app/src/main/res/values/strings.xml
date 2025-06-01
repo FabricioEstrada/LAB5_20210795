@@ -1,0 +1,10 @@
+<resources>
+    <string name="app_name">Lab5_20210795</string>
+    <string-array name="categorias_habitos">
+        <item>Ejercicio</item>
+        <item>Alimentación</item>
+        <item>Sueño</item>
+        <item>Otro</item>
+    </string-array>
+
+</resources>
