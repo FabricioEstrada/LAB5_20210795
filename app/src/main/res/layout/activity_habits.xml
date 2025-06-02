@@ -26,4 +26,17 @@
         app:layout_constraintEnd_toEndOf="parent"
         android:padding="8dp" />
 
+    <TextView
+        android:id="@+id/NoHayHabitos"
+        android:layout_width="272dp"
+        android:layout_height="128dp"
+        android:text="No hay ningún hábito, ¡crea uno!"
+        android:textAlignment="center"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toBottomOf="@+id/rvHabits"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="@+id/rvHabits"
+        app:layout_constraintTop_toTopOf="@+id/rvHabits" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -16,7 +16,9 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import java.io.Serializable;
 import java.util.Calendar;
+import java.util.List;
 
 public class NuevoHabitActivity extends AppCompatActivity {
 
@@ -53,24 +55,21 @@ public class NuevoHabitActivity extends AppCompatActivity {
         etFechaHoraInicio.setOnClickListener(v -> mostrarSelectorFechaYHora());
 
         btnGuardar.setOnClickListener(v -> {
-            String nombre = etNombre.getText().toString().trim();
+            String nombre = etNombre.getText().toString();
             String categoria = spinnerCategoria.getSelectedItem().toString();
-            String freqStr = etFrecuencia.getText().toString().trim();
+            int frecuencia = Integer.parseInt(etFrecuencia.getText().toString());
+            int nuevoId = HabitStoragePrefs.obtenerNuevoIdUnico(this);
 
-            if (nombre.isEmpty() || freqStr.isEmpty() || fechaInicioMillis == 0) {
-                // Puedes mostrar un Toast o mensaje que falta info
-                return;
-            }
+            Habit habit = new Habit(nuevoId, nombre, categoria, frecuencia, fechaInicioMillis);
 
-            int frecuencia = Integer.parseInt(freqStr);
+            List<Habit> lista = HabitStoragePrefs.cargarHabitos(this);
+            lista.add(habit);
+            HabitStoragePrefs.guardarHabitos(this, lista);
+            NotificationHelper.programarNotificacion(this, habit);
 
-            Habit habit = new Habit(nombre, categoria, frecuencia, fechaInicioMillis);
-
-            Intent resultIntent = new Intent();
-            resultIntent.putExtra("nuevo_habit", habit);
-            setResult(RESULT_OK, resultIntent);
             finish();
         });
+
     }
 
     private void mostrarSelectorFechaYHora() {

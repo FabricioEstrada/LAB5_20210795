@@ -4,6 +4,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.Spinner;
 import android.widget.TextView;
 
@@ -36,17 +37,7 @@ public class HabitAdapter extends RecyclerView.Adapter<HabitAdapter.HabitViewHol
         Habit habit = habits.get(position);
         holder.tvNombre.setText(habit.getNombre());
 
-        // Configurar Spinner para la categoría
-        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(context,
-                R.array.categorias_habitos, android.R.layout.simple_spinner_item);
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        holder.spinnerCategoria.setAdapter(adapter);
-
-        // Seleccionar categoría correspondiente
-        int spinnerPosition = adapter.getPosition(habit.getCategoria());
-        if (spinnerPosition >= 0) {
-            holder.spinnerCategoria.setSelection(spinnerPosition);
-        }
+        holder.tvCategoria.setText("Categoría: " + habit.getCategoria());
 
         holder.tvFrecuencia.setText("Frecuencia: Cada " + habit.getFrecuenciaHoras() + " horas");
 
@@ -54,6 +45,27 @@ public class HabitAdapter extends RecyclerView.Adapter<HabitAdapter.HabitViewHol
         SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault());
         String fechaStr = sdf.format(habit.getFechaInicioMillis());
         holder.tvFechaInicio.setText("Inicio: " + fechaStr);
+// Acción de eliminar
+        holder.btnEliminar.setOnClickListener(v -> {
+            new android.app.AlertDialog.Builder(context)
+                    .setTitle("Eliminar hábito")
+                    .setMessage("¿Estás seguro de que quieres eliminar este hábito?")
+                    .setPositiveButton("Sí", (dialog, which) -> {
+                        habits.remove(position);
+                        notifyItemRemoved(position);
+                        notifyItemRangeChanged(position, habits.size());
+
+                        // Guardar lista actualizada
+                        HabitStoragePrefs.guardarHabitos(context, habits);
+
+                        // Mostrar mensaje si la lista queda vacía
+                        if (context instanceof HabitsActivity && habits.isEmpty()) {
+                            ((HabitsActivity) context).mostrarTextoNoHayHabitos();
+                        }
+                    })
+                    .setNegativeButton("Cancelar", null)
+                    .show();
+        });
     }
 
     @Override
@@ -63,15 +75,16 @@ public class HabitAdapter extends RecyclerView.Adapter<HabitAdapter.HabitViewHol
 
     public static class HabitViewHolder extends RecyclerView.ViewHolder {
 
-        TextView tvNombre, tvFrecuencia, tvFechaInicio;
-        Spinner spinnerCategoria;
+        TextView tvNombre, tvFrecuencia, tvFechaInicio, tvCategoria;
+        Button btnEliminar;
 
         public HabitViewHolder(@NonNull View itemView) {
             super(itemView);
             tvNombre = itemView.findViewById(R.id.tvNombreHabit);
-            spinnerCategoria = itemView.findViewById(R.id.spinnerCategoria);
+            tvCategoria = itemView.findViewById(R.id.tvCategoria);
             tvFrecuencia = itemView.findViewById(R.id.tvFrecuencia);
             tvFechaInicio = itemView.findViewById(R.id.tvFechaInicio);
+            btnEliminar = itemView.findViewById(R.id.btnEliminar);
         }
     }
 }

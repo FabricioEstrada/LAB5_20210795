@@ -52,13 +52,13 @@ public class ConfiguracionesActivity extends AppCompatActivity {
 
     private void programarNotificacionMotivacional(int horas) {
         AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
-        Intent intent = new Intent(this, NotificacionReceiver.class);
+        Intent intent = new Intent(this, NotificationReceiverMotivacional.class);
         PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 0, intent, PendingIntent.FLAG_IMMUTABLE);
 
         alarmManager.cancel(pendingIntent); // Cancelar si existía
 
-        //long intervalo = horas * 60 * 60 * 1000L; // horas a milisegundos
-        long intervalo = 120 * 1000; // 1 minuto en milisegundos
+        long intervalo = horas * 60 * 1000L; // horas a milisegundos
+        //long intervalo = 120 * 1000; // 1 minuto en milisegundos
         long primerDisparo = System.currentTimeMillis() + intervalo;
 
         alarmManager.setRepeating(

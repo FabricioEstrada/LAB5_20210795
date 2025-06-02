@@ -25,6 +25,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -50,10 +51,19 @@ public class MainActivity extends AppCompatActivity {
         String nombre = prefs.getString("nombre", "Usuario");
         String mensaje = prefs.getString("mensaje", "¡Hoy será un gran día!");
 
+        List<Habit> listaHabitos = HabitStoragePrefs.cargarHabitos(this);
+
+        if (!listaHabitos.isEmpty()) {
+            for (Habit habit : listaHabitos) {
+                NotificationHelper.programarNotificacion(this, habit);
+            }
+        }
+
         tvSaludo.setText("¡Hola, " + nombre + "!");
         tvMensaje.setText(mensaje);
 
-        createNotificationChannel();
+        createNotificationChannelMotivacion();
+        createNotificationChannels();
         programarNotificacionMotivacionalPorDefecto();
 
         // Inicializar el nuevo launcher
@@ -76,7 +86,7 @@ public class MainActivity extends AppCompatActivity {
         ivImagen.setOnClickListener(v -> seleccionarImagenDesdeGaleria());
 
         findViewById(R.id.btnHabitos).setOnClickListener(v -> {
-            startActivity(new Intent(MainActivity.this, HabitosActivity.class));
+            startActivity(new Intent(MainActivity.this, HabitsActivity.class));
         });
 
         findViewById(R.id.btnConfiguraciones).setOnClickListener(v -> {
@@ -118,11 +128,49 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    public void createNotificationChannel() {
+    public void createNotificationChannels() {
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+            NotificationManager notificationManager = getSystemService(NotificationManager.class);
+
+            String[] categorias = {"Ejercicio", "Alimentacion", "Suenho", "Lectura"};
+            int[] importancias = {
+                    NotificationManager.IMPORTANCE_HIGH,
+                    NotificationManager.IMPORTANCE_DEFAULT,
+                    NotificationManager.IMPORTANCE_LOW,
+                    NotificationManager.IMPORTANCE_DEFAULT
+            };
+
+            for (int i = 0; i < categorias.length; i++) {
+                String id = "canal_" + categorias[i];
+                String name = "Canal de " + categorias[i];
+                String descripcion = "Canal para hábitos de tipo " + categorias[i];
+
+                NotificationChannel channel = new NotificationChannel(id, name, importancias[i]);
+                channel.setDescription(descripcion);
+                channel.enableVibration(true);
+
+                notificationManager.createNotificationChannel(channel);
+            }
+
+            askNotificationPermission();  // Luego de crear canales, pedimos permisos si aplica
+        }
+    }
+
+    public void askNotificationPermission() {
+        if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
+                ActivityCompat.checkSelfPermission(this, android.Manifest.permission.POST_NOTIFICATIONS)
+                        == PackageManager.PERMISSION_DENIED) {
+            ActivityCompat.requestPermissions(this,
+                    new String[]{android.Manifest.permission.POST_NOTIFICATIONS},
+                    101);
+        }
+    }
+
+    public void createNotificationChannelMotivacion() {
         //android.os.Build.VERSION_CODES.O == 26
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
             NotificationChannel channel = new NotificationChannel(channelId,
-                    "Canal notificaciones default",
+                    "Canal Motivacion",
                     NotificationManager.IMPORTANCE_HIGH);
             channel.setDescription("Canal para notificaciones con prioridad default");
             NotificationManager notificationManager = getSystemService(NotificationManager.class);
@@ -141,14 +189,12 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-
-
     private void programarNotificacionMotivacionalPorDefecto() {
         SharedPreferences prefs = getSharedPreferences("MisPreferencias", MODE_PRIVATE);
 
         // Si no hay datos previos, se usarán los valores por defecto
         String mensaje = prefs.getString("mensaje", "¡Hoy será un gran día!");
-        int horas = prefs.getInt("horas", 6);
+        int horas = prefs.getInt("horas", 1);
 
         SharedPreferences.Editor editor = prefs.edit();
         editor.putString("mensaje", mensaje); // se asegura que esté guardado
@@ -156,11 +202,10 @@ public class MainActivity extends AppCompatActivity {
         editor.apply();
 
         AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
-        Intent intent = new Intent(this, NotificacionReceiver.class);
+        Intent intent = new Intent(this, NotificationReceiverMotivacional.class);
         PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 0, intent, PendingIntent.FLAG_IMMUTABLE);
 
-        //long intervalo = horas * 60 * 60 * 1000L;
-        long intervalo = 20 * 1000;
+        long intervalo = horas * 60 * 1000L;
         long primerDisparo = System.currentTimeMillis() + intervalo;
 
         alarmManager.setRepeating(

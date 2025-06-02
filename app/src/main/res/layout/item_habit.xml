@@ -10,23 +10,36 @@
         android:textSize="18sp"
         android:textStyle="bold"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        android:text="Nombre "/>
 
-    <Spinner
-        android:id="@+id/spinnerCategoria"
+    <TextView
+        android:id="@+id/tvCategoria"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:entries="@array/categorias_habitos" />
+        android:text="Categoría: " />
 
     <TextView
         android:id="@+id/tvFrecuencia"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:paddingTop="4dp" />
+        android:paddingTop="4dp"
+        android:text="Frecuencia:"/>
 
     <TextView
         android:id="@+id/tvFechaInicio"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:paddingTop="2dp" />
+        android:paddingTop="2dp"
+        android:text="Fechad de inicio: "/>
+
+    <Button
+        android:id="@+id/btnEliminar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="8dp"
+        android:text="Eliminar"
+        android:textAlignment="viewStart" />
+
 </LinearLayout>

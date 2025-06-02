@@ -19,15 +19,44 @@ public class NotificacionReceiver extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        SharedPreferences prefs = context.getSharedPreferences("MisPreferencias", Context.MODE_PRIVATE);
-        String mensaje = prefs.getString("mensaje", "¡Hoy será un gran día!");
+        // Recibir datos del hábito desde el intent
+        String nombreHabit = intent.getStringExtra("nombre");
+        String categoria = intent.getStringExtra("categoria");
+        int habitId = intent.getIntExtra("habit_id", 1);
 
+        // Definir canal según categoría
+        String channelId = "";
+        String mensaje = "¡Hoy es un gran día para tu hábito!";
+        int icono = R.drawable.ic_launcher_foreground;
+
+        switch (categoria) {
+            case "Ejercicio":
+                channelId = "canal_Ejercicio";
+                mensaje = "¡Hora de moverte! 🏃‍♂️ ¡Sal a correr!";
+                icono = R.drawable.ic_ejercicio;
+                break;
+            case "Alimentación":
+                channelId = "canal_Alimentacion";
+                mensaje = "¡Momento de comer bien! 🥗 Cuida tu cuerpo.";
+                icono = R.drawable.ic_alimentacion;
+                break;
+            case "Sueño":
+                channelId = "canal_Suenho";
+                mensaje = "🛌 ¡Hora de dormir como un campeón!";
+                icono = R.drawable.ic_suenho;
+                break;
+            case "Lectura":
+                channelId = "canal_Lectura";
+                mensaje = "📖 ¡Abre un libro y explora un nuevo mundo!";
+                icono = R.drawable.ic_lectura;
+                break;
+        }
         Intent i = new Intent(context, MainActivity.class);
-        PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, i, PendingIntent.FLAG_IMMUTABLE);
+        PendingIntent pendingIntent = PendingIntent.getActivity(context, habitId, i, PendingIntent.FLAG_IMMUTABLE);
 
-        NotificationCompat.Builder builder = new NotificationCompat.Builder(context, "canal_motivacional")
-                .setSmallIcon(R.drawable.ic_launcher_foreground)
-                .setContentTitle("Mensaje motivacional")
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(context, channelId)
+                .setSmallIcon(icono)  // ícono representativo distinto
+                .setContentTitle(nombreHabit)
                 .setContentText(mensaje)
                 .setContentIntent(pendingIntent)
                 .setAutoCancel(true);
@@ -35,7 +64,7 @@ public class NotificacionReceiver extends BroadcastReceiver {
         NotificationManagerCompat notificationManager = NotificationManagerCompat.from(context);
 
         if (ActivityCompat.checkSelfPermission(context, POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED) {
-            notificationManager.notify(1, builder.build());
+            notificationManager.notify(habitId, builder.build());
         }
     }
 }

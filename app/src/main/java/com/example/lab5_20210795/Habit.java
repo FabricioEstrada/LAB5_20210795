@@ -4,16 +4,26 @@ package com.example.lab5_20210795;
 import java.io.Serializable;
 
 public class Habit implements Serializable {
+    private int idUnico;
     private String nombre;
     private String categoria;
     private int frecuenciaHoras;
     private long fechaInicioMillis;
 
-    public Habit(String nombre, String categoria, int frecuenciaHoras, long fechaInicioMillis) {
+    public Habit(int idUnico, String nombre, String categoria, int frecuenciaHoras, long fechaInicioMillis) {
+        this.idUnico = idUnico;
         this.nombre = nombre;
         this.categoria = categoria;
         this.frecuenciaHoras = frecuenciaHoras;
         this.fechaInicioMillis = fechaInicioMillis;
+    }
+
+    public int getIdUnico() {
+        return idUnico;
+    }
+
+    public void setIdUnico(int idUnico) {
+        this.idUnico = idUnico;
     }
 
     public String getNombre() {
